@@ -35,8 +35,7 @@ class OptimLP(Optimizer):
         momentum_quant=None,
         acc_quant=None,
     ):
-        assert isinstance(optim, SGD) or isinstance(
-            optim, Adam) or isinstance(optim, AdamW)
+        assert isinstance(optim, SGD) or isinstance(optim, Adam) or isinstance(optim, AdamW)
         super(OptimLP, self).__init__(
             optim.param_groups, optim.defaults
         )  # place holder
@@ -55,7 +54,9 @@ class OptimLP(Optimizer):
 
         if isinstance(self.optim, SGD):
             self.momentum_keys = ["momentum_buffer"]
-        elif isinstance(self.optim, Adam) or isinstance(self.optim, AdamW):
+        elif isinstance(self.optim, Adam):
+            self.momentum_keys = ["exp_avg", "exp_avg_sq"]
+        elif isinstance(self.optim, AdamW):
             # TODO: support amsgrad
             self.momentum_keys = ["exp_avg", "exp_avg_sq"]
         else:
