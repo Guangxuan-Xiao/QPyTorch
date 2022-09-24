@@ -1,6 +1,6 @@
 import torch
 from torch.optim import Optimizer, SGD, Adam, AdamW
-
+import logging
 __all__ = ["OptimLP"]
 
 
@@ -35,7 +35,8 @@ class OptimLP(Optimizer):
         momentum_quant=None,
         acc_quant=None,
     ):
-        assert isinstance(optim, SGD) or isinstance(optim, Adam) or isinstance(optim, AdamW)
+        assert isinstance(optim, SGD) or isinstance(
+            optim, Adam) or isinstance(optim, AdamW)
         super(OptimLP, self).__init__(
             optim.param_groups, optim.defaults
         )  # place holder
@@ -80,8 +81,11 @@ class OptimLP(Optimizer):
                     # None gradient is equivalent to 0 gradient, skip
                     if p.grad is None:
                         continue
+                    # print("before grad quant", p.grad.data[:10])
+                    # XGX: Grad scaling should be multiplied after quantization?
                     p.grad.data = self.grad_quant(
-                        p.grad.data * self.grad_scaling)
+                        p.grad.data) * self.grad_scaling
+                    # print("after grad quant", p.grad.data[:10])
 
         # switch acc into weight before stepping
         if not self.acc_quant is None:
